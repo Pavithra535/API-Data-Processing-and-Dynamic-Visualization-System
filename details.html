@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVE Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { font-size: 24px; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <h1 id="cveTitle">CVE ID: Loading...</h1><br>
+    <h1><strong>Description</strong></h1>
+    <p id="cveDescription">Loading description...</p>
+
+    <h1><strong>CVSS V2 Metrics:</strong></h1>
+    <h3><strong>Vector String: </strong></h3>
+    <p id="vectorString">Loading...</p>
+    <table id="metricsTable">
+        <thead>
+            <tr>
+                <th>Access Vector</th>
+                <th>Access Complexity</th>
+                <th>Authentication</th>
+                <th>Confidentiality Impact</th>
+                <th>Integrity Impact</th>
+                <th>Availability Impact</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="3">Loading metrics...</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2><strong>Score</strong></h2>
+    <h3><strong>Base Score:</strong></h3>
+    <p id="baseScore">Loading...</p>
+    <h1><strong>CPE:</strong></h1>
+    <table id="cpeTable">
+        <thead>
+            <tr>
+                <th>Criteria</th>
+                <th>Match Criteria Id</th>
+                <th>Vulnerable</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="3">Loading CPEs...</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        // Extract CVE ID from the URL
+const urlParams = new URLSearchParams(window.location.search);
+const cveId = urlParams.get("cveId");
+
+// Fetch and display CVE details directly from the NVD API
+async function fetchCveDetailsFromNVD(cveId) {
+    try {
+        // Fetch details from the NVD API
+        const apiUrl = `https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=${cveId}`;
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch details for CVE ID ${cveId}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        // Check if the vulnerabilities array is present and has data
+        const vulnerabilities = data.vulnerabilities || [];
+        if (vulnerabilities.length === 0) {
+            document.body.innerHTML = `<h1>No data found for CVE ID: ${cveId}</h1>`;
+            return;
+        }
+
+        // Display the first result
+        const details = vulnerabilities[0].cve;
+        displayCveDetails(details);
+    } catch (error) {
+        console.error("Error fetching CVE details:", error);
+        document.body.innerHTML = `<h1>Error fetching details: ${error.message}</h1>`;
+    }
+}
+
+// Display the fetched CVE details
+function displayCveDetails(details) {
+    // Display CVE ID at the top in bold
+    document.getElementById("cveTitle").textContent = `CVE ID: ${details.id}`;
+
+    // Display Description
+    document.getElementById("cveDescription").textContent = details.descriptions?.[0]?.value || "No description available.";
+    
+    // Display Vector String
+    document.getElementById("vectorString").textContent = details.metrics?.cvssMetricV2?.[0].cvssData?.vectorString || "Not displayed";
+        // Display Metrics in a Table
+    const metricsTable = document.querySelector("#metricsTable tbody");
+    const metric = details.metrics?.cvssMetricV2?.[0].cvssData || {};
+    metricsTable.innerHTML = `
+        <tr>
+            <td>${metric.accessVector || "N/A"}</td>
+            <td>${metric.accessComplexity || "N/A"}</td>
+            <td>${metric.authentication || "N/A"}</td>
+            <td>${metric.confidentialityImpact || "NA"}</td>
+            <td>${metric.integrityImpact || "NA"}</td>
+            <td>${metric.availabilityImpact || "NA"}</td>
+        </tr>
+    `;
+    document.getElementById("baseScore").textContent=details.metrics?.cvssMetricV2?.[0].cvssData?.baseScore|| "No";
+    // Display CPEs in a Table
+    const cpeTable = document.querySelector("#cpeTable tbody");
+    const cpes = details.configurations?.[0].nodes?.[0]?.cpeMatch || [];
+    cpeTable.innerHTML = cpes
+        .map(
+            (cpe) => `
+            <tr>
+                <td>${details.configurations?.[0].nodes?.[0]?.cpeMatch?.[0].criteria || "N/A"}</td>
+                <td>${details.configurations?.[0].nodes?.[0]?.cpeMatch?.[0].matchCriteriaId || "N/A"}</td>
+                <td>${details.configurations?.[0].nodes?.[0]?.cpeMatch?.[0].vulnerable || "N/A"}</td>
+            </tr>
+            `
+        )
+        .join("");
+}
+
+// Load the CVE details on page load
+if (cveId) {
+    fetchCveDetailsFromNVD(cveId);
+} else {
+    document.body.innerHTML = "<h1>Error: CVE ID not provided</h1>";
+}
+
+    </script>
+</body>
+</html>
