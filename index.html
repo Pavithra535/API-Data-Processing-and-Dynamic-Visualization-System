@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paginated Vulnerabilities Table</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>CVE LIST</h1>
+    <table id="vulnTable">
+        <!-- Total Records -->
+        <p id="totalRecords">Total Records:</p>
+        <thead>
+            <tr>
+                <th>CVE ID</th>
+                <th>Source Identifier</th>
+                <th>Published</th>
+                <th>Last Modified</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data rows will be dynamically inserted here -->
+        </tbody>
+    </table>
+    <div id="pagination">
+        <!-- Pagination controls will be dynamically added here -->
+    </div>
+    <div id="details">
+        <!-- Row details will be displayed here -->
+    </div>
+    <div>
+        <label for="recordsPerPageSelect">Records per page: </label>
+        <select id="recordsPerPageSelect">
+            <option value="10" selected>10</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
